@@ -1,4 +1,5 @@
 import assert from 'assert';
+import TestReporter from '../src/core/reporter';
 import { TestSpecs, TestSuite } from '../src/core/suite';
 import TestRunner from '../src/impl/runner';
 
@@ -7,23 +8,24 @@ const testNameB = 'example B test';
 
 export default async function testRunner_manySuites(): Promise<void> {
 
-  const runner = new TestRunner();
+  const reporter = new TestReporter();
+  const runner = new TestRunner(reporter);
   const testSuites = [TestSuiteStub1, TestSuiteStub2];
 
-  const report = await runner.run(testSuites);
+  await runner.run(testSuites);
 
-  assert.equal(report.suites.length, 2);
-  assert.equal(report.suites[0].name, TestSuiteStub1.name);
-  assert.equal(report.suites[0].tests.length, 1);
-  assert.equal(report.suites[0].tests[0].name, testNameA);
-  assert.equal(report.suites[1].name, TestSuiteStub2.name);
-  assert.equal(report.suites[1].tests.length, 1);
-  assert.equal(report.suites[1].tests[0].name, testNameB);
+  const report = reporter.getReport();
+
+  assert.equal(report.length, 2);
+  assert.equal(report[0].suite, TestSuiteStub1.name);
+  assert.equal(report[0].test, testNameA);
+  assert.equal(report[1].suite, TestSuiteStub2.name);
+  assert.equal(report[1].test, testNameB);
 }
 
 class TestSuiteStub1 extends TestSuite {
 
-  tests(): TestSpecs {
+  override tests(): TestSpecs {
     return {
       [testNameA]: () => {
         // dummy
@@ -34,7 +36,7 @@ class TestSuiteStub1 extends TestSuite {
 
 class TestSuiteStub2 extends TestSuite {
 
-  tests(): TestSpecs {
+  override tests(): TestSpecs {
     return {
       [testNameB]: () => {
         // dummy

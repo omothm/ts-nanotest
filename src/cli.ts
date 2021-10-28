@@ -1,9 +1,10 @@
 import ClassLoader from './core/classLoader';
 import DirectoryReader from './core/directoryReader';
-import { TestSuite } from './core/suite';
+import TestReporter from './core/reporter';
 import TestFramework from './impl/framework';
 import NodeClassLoader from './impl/nodeClassLoader';
 import NodeDirectoryReader from './impl/nodeDirectoryReader';
+import BasicReporter from './reporters/basic';
 import config from './config';
 import activateTypescriptImports from './tsImport';
 
@@ -17,13 +18,13 @@ async function main() {
   console.log(`Testing ${globPattern}...`);
 
   const directoryReader: DirectoryReader = new NodeDirectoryReader();
-  const classLoader: ClassLoader<TestSuite> = new NodeClassLoader();
+  const classLoader: ClassLoader = new NodeClassLoader();
+  const reporter: TestReporter = new BasicReporter();
   const framework = new TestFramework(
     directoryReader,
     classLoader,
+    reporter,
   );
 
-  const report = await framework.test(globPattern);
-
-  console.log(JSON.stringify(report));
+  await framework.test(globPattern);
 }

@@ -1,4 +1,5 @@
 import assert from 'assert';
+import TestReporter from '../src/core/reporter';
 import { TestSpecs, TestSuite } from '../src/core/suite';
 import TestRunner from '../src/impl/runner';
 
@@ -6,17 +7,19 @@ const testName = 'example test';
 
 export default async function testRunner_singleSuite_singleTest_pass(): Promise<void> {
 
-  const runner = new TestRunner();
+  const reporter = new TestReporter();
+  const runner = new TestRunner(reporter);
   const testSuites = [TestSuiteSpy];
   TestSuiteSpy.testCalled = false;
 
-  const report = await runner.run(testSuites);
+  await runner.run(testSuites);
 
-  assert.equal(report.suites.length, 1);
-  assert.equal(report.suites[0].name, TestSuiteSpy.name);
-  assert.equal(report.suites[0].tests.length, 1);
-  assert.equal(report.suites[0].tests[0].name, testName);
-  assert.equal(report.suites[0].tests[0].error, null);
+  const report = reporter.getReport();
+
+  assert.equal(report.length, 1);
+  assert.equal(report[0].suite, TestSuiteSpy.name);
+  assert.equal(report[0].test, testName);
+  assert.equal(report[0].error, null);
   assert.ok(TestSuiteSpy.testCalled);
 }
 
@@ -24,7 +27,7 @@ class TestSuiteSpy extends TestSuite {
 
   static testCalled = false;
 
-  tests(): TestSpecs {
+  override tests(): TestSpecs {
     return {
       [testName]: () => {
         TestSuiteSpy.testCalled = true;

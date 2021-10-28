@@ -1,3 +1,5 @@
-export default interface ClassLoader<T> {
-  load(filepath: string): Promise<new () => T>;
+import { TestSuite } from './suite';
+
+export default interface ClassLoader {
+  load(filepath: string): Promise<new () => TestSuite>;
 }

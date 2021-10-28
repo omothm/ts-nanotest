@@ -2,7 +2,7 @@ import ClassLoader from '../core/classLoader';
 import TestError from '../core/error';
 import { TestSuite } from '../core/suite';
 
-export default class NodeClassLoader implements ClassLoader<TestSuite> {
+export default class NodeClassLoader implements ClassLoader {
 
   async load(filepath: string): Promise<new () => TestSuite> {
     try {

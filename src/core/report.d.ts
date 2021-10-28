@@ -1,13 +1,5 @@
-export interface TestReport {
-  suites: SuiteResult[];
-}
-
-export interface SuiteResult {
-  name: string;
-  tests: TestResult[];
-}
-
-interface TestResult {
-  name: string;
+export default interface TestReport {
+  suite: string;
+  test: string;
   error: Error | null;
 }

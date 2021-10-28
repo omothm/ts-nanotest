@@ -2,6 +2,7 @@ import assert from 'assert';
 import ClassLoader from '../src/core/classLoader';
 import DirectoryReader from '../src/core/directoryReader';
 import TestError from '../src/core/error';
+import TestReporter from '../src/core/reporter';
 import { TestSuite } from '../src/core/suite';
 import TestFramework from '../src/impl/framework';
 
@@ -12,7 +13,8 @@ export default async function testFramework_classLoadFail(): Promise<void> {
 
   const directoryReader = new DirectoryReaderStub();
   const classLoader = new ClassLoaderStub();
-  const testFramework = new TestFramework(directoryReader, classLoader);
+  const reporter = new TestReporter();
+  const testFramework = new TestFramework(directoryReader, classLoader, reporter);
 
   await assert.rejects(async () => {
     await testFramework.test(testPattern);
@@ -28,7 +30,7 @@ class DirectoryReaderStub implements DirectoryReader {
   }
 }
 
-class ClassLoaderStub implements ClassLoader<TestSuite> {
+class ClassLoaderStub implements ClassLoader {
   load(_filepath: string): Promise<new () => TestSuite> {
     throw new TestError('Could not load test class');
   }

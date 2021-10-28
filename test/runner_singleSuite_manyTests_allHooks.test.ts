@@ -1,23 +1,27 @@
 import assert from 'assert';
+import TestReporter from '../src/core/reporter';
 import { TestSpecs, TestSuite } from '../src/core/suite';
 import TestRunner from '../src/impl/runner';
 
 const testNames = ['test 1', 'test 2'];
 
 export default async function testRunner_singleSuite_manyTests_allHooks(): Promise<void> {
-  const runner = new TestRunner();
+  const reporter = new TestReporter();
+  const runner = new TestRunner(reporter);
   const testClasses = [TestSuiteSpy];
   TestSuiteSpy.testOrder = [];
 
-  const report = await runner.run(testClasses);
+  await runner.run(testClasses);
 
-  assert.equal(report.suites.length, 1);
-  assert.equal(report.suites[0].name, TestSuiteSpy.name);
-  assert.equal(report.suites[0].tests.length, 2);
-  assert.equal(report.suites[0].tests[0].name, testNames[0]);
-  assert.equal(report.suites[0].tests[0].error, null);
-  assert.equal(report.suites[0].tests[1].name, testNames[1]);
-  assert.equal(report.suites[0].tests[1].error, null);
+  const report = reporter.getReport();
+
+  assert.equal(report.length, 2);
+  assert.equal(report[0].suite, TestSuiteSpy.name);
+  assert.equal(report[0].test, testNames[0]);
+  assert.equal(report[0].error, null);
+  assert.equal(report[1].suite, TestSuiteSpy.name);
+  assert.equal(report[1].test, testNames[1]);
+  assert.equal(report[1].error, null);
   assert.equal(
     TestSuiteSpy.testOrder.join(','),
     ['ba', 'be', 't1', 'ae', 'be', 't2', 'ae', 'aa'].join(','),
@@ -28,23 +32,23 @@ class TestSuiteSpy extends TestSuite {
 
   static testOrder: string[] = [];
 
-  beforeAll() {
+  override beforeAll() {
     TestSuiteSpy.testOrder.push('ba');
   }
 
-  afterAll() {
+  override afterAll() {
     TestSuiteSpy.testOrder.push('aa');
   }
 
-  beforeEach() {
+  override beforeEach() {
     TestSuiteSpy.testOrder.push('be');
   }
 
-  afterEach() {
+  override afterEach() {
     TestSuiteSpy.testOrder.push('ae');
   }
 
-  tests(): TestSpecs {
+  override tests(): TestSpecs {
     return {
       [testNames[0]]: () => {
         TestSuiteSpy.testOrder.push('t1');

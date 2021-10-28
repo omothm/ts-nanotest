@@ -1,6 +1,7 @@
 import assert from 'assert';
 import ClassLoader from '../src/core/classLoader';
 import DirectoryReader from '../src/core/directoryReader';
+import TestReporter from '../src/core/reporter';
 import { TestSpecs, TestSuite } from '../src/core/suite';
 import TestFramework from '../src/impl/framework';
 
@@ -12,15 +13,17 @@ export default async function testFramework(): Promise<void> {
 
   const directoryReader = new DirectoryReaderStub();
   const classLoader = new ClassLoaderStub();
-  const framework = new TestFramework(directoryReader, classLoader);
+  const reporter = new TestReporter();
+  const framework = new TestFramework(directoryReader, classLoader, reporter);
 
-  const report = await framework.test(testPattern);
+  await framework.test(testPattern);
 
-  assert.equal(report.suites.length, 1);
-  assert.equal(report.suites[0].name, TestSuiteStub.name);
-  assert.equal(report.suites[0].tests.length, 1);
-  assert.equal(report.suites[0].tests[0].name, testName);
-  assert.equal(report.suites[0].tests[0].error, null);
+  const report = reporter.getReport();
+
+  assert.equal(report.length, 1);
+  assert.equal(report[0].suite, TestSuiteStub.name);
+  assert.equal(report[0].test, testName);
+  assert.equal(report[0].error, null);
 }
 
 class DirectoryReaderStub implements DirectoryReader {
@@ -32,7 +35,7 @@ class DirectoryReaderStub implements DirectoryReader {
   }
 }
 
-class ClassLoaderStub implements ClassLoader<TestSuite> {
+class ClassLoaderStub implements ClassLoader {
   load(filepath: string): Promise<new () => TestSuite> {
     if (filepath !== testFiles[0]) {
       throw new Error('Not stubbed');
@@ -43,7 +46,7 @@ class ClassLoaderStub implements ClassLoader<TestSuite> {
 
 class TestSuiteStub extends TestSuite {
 
-  tests(): TestSpecs {
+  override tests(): TestSpecs {
     return {
       [testName]: () => {
         // dummy
