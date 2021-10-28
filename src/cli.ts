@@ -14,8 +14,7 @@ main().catch(console.error);
 
 async function main() {
 
-  const globPattern = process.argv.length > 2 ? process.argv[2] : config.defaultPattern;
-  console.log(`Testing ${globPattern}...`);
+  const globPatterns = process.argv.length > 2 ? process.argv.slice(2) : [config.defaultPattern];
 
   const directoryReader: DirectoryReader = new NodeDirectoryReader();
   const classLoader: ClassLoader = new NodeClassLoader();
@@ -26,5 +25,5 @@ async function main() {
     reporter,
   );
 
-  await framework.test(globPattern);
+  await framework.test(globPatterns);
 }

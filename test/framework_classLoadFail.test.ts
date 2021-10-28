@@ -17,13 +17,13 @@ export default async function testFramework_classLoadFail(): Promise<void> {
   const testFramework = new TestFramework(directoryReader, classLoader, reporter);
 
   await assert.rejects(async () => {
-    await testFramework.test(testPattern);
+    await testFramework.test([testPattern]);
   }, TestError);
 }
 
 class DirectoryReaderStub implements DirectoryReader {
-  read(globPattern: string): string[] {
-    if (globPattern !== testPattern) {
+  read(globPatterns: string[]): string[] {
+    if (globPatterns[0] !== testPattern) {
       throw new Error('Not stubbed');
     }
     return testFiles;

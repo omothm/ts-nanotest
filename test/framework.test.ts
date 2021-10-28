@@ -16,7 +16,7 @@ export default async function testFramework(): Promise<void> {
   const reporter = new TestReporter();
   const framework = new TestFramework(directoryReader, classLoader, reporter);
 
-  await framework.test(testPattern);
+  await framework.test([testPattern]);
 
   const report = reporter.getReport();
 
@@ -27,8 +27,8 @@ export default async function testFramework(): Promise<void> {
 }
 
 class DirectoryReaderStub implements DirectoryReader {
-  read(globPattern: string): string[] {
-    if (globPattern !== testPattern) {
+  read(globPatterns: string[]): string[] {
+    if (globPatterns[0] !== testPattern) {
       throw new Error('Not stubbed');
     }
     return testFiles;

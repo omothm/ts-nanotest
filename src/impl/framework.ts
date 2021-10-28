@@ -16,8 +16,8 @@ export default class TestFramework {
     this.testRunner = new TestRunner(reporter);
   }
 
-  async test(globPattern: string): Promise<void> {
-    const testFiles = this.directoryReader.read(globPattern);
+  async test(globPatterns: string[]): Promise<void> {
+    const testFiles = this.directoryReader.read(globPatterns);
     const testSuiteClasses: (new () => TestSuite)[] = [];
     for (const testFile of testFiles) {
       const testSuiteClass = await this.classLoader.load(testFile);

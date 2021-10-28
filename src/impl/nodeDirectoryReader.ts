@@ -3,7 +3,10 @@ import DirectoryReader from '../core/directoryReader';
 
 export default class NodeDirectoryReader implements DirectoryReader {
 
-  read(globPattern: string): string[] {
-    return readDirectory(globPattern, { realpath: true });
+  read(globPatterns: string[]): string[] {
+    return globPatterns.reduce((prev, cur) => {
+      prev.push(...readDirectory(cur, { realpath: true }));
+      return prev;
+    }, [] as string[]);
   }
 }
