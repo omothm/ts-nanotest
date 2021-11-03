@@ -52,13 +52,13 @@ export function createAllHookSuiteSpy(
       }
     }
 
-    override afterEach() {
+    afterEach() {
       if (hookNames.afterEach) {
         callOrder.push(hookNames.afterEach);
       }
     }
 
-    override tests(): TestSpecs {
+    tests(): TestSpecs {
       const specs: TestSpecs = {};
       for (const testName of testNames) {
         specs[testName] = () => {
