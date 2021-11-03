@@ -1,4 +1,4 @@
-import { NoTestSuitesError } from '../core/errors';
+import { HookError, NoTestSuitesError } from '../core/errors';
 import { TestSuite } from '../core/suite';
 import TestReporter from '../core/reporter';
 
@@ -18,11 +18,19 @@ export default class TestRunner {
       const suite = new suiteClass();
       const tests = suite.tests();
 
-      await suite.beforeAll();
+      try {
+        await suite.beforeAll();
+      } catch (err) {
+        throw new HookError(hookErrorMessage('beforeAll', suiteClass.name, null, err));
+      }
 
       for (const [testName, testFunction] of Object.entries(tests)) {
 
-        await suite.beforeEach();
+        try {
+          await suite.beforeEach();
+        } catch (err) {
+          throw new HookError(hookErrorMessage('beforeEach', suiteClass.name, testName, err));
+        }
 
         try {
 
@@ -44,12 +52,34 @@ export default class TestRunner {
 
         }
 
-        await suite.afterEach();
+        try {
+          await suite.afterEach();
+        } catch (err) {
+          throw new HookError(hookErrorMessage('afterEach', suiteClass.name, testName, err));
+        }
+
       }
 
-      await suite.afterAll();
+      try {
+        await suite.afterAll();
+      } catch (err) {
+        throw new HookError(hookErrorMessage('afterAll', suiteClass.name, null, err));
+      }
     }
 
     this.reporter.end();
   }
+}
+
+function hookErrorMessage(
+  hook: 'beforeAll' | 'beforeEach' | 'afterEach' | 'afterAll',
+  suite: string,
+  test: string | null,
+  error: unknown,
+) {
+  const errorString = error instanceof Error
+    ? error.stack || error.message
+    : (error as object).toString();
+  const testName = `${suite}${test ? `/${test}` : ''}`;
+  return `${hook} hook errored in ${testName}\n${errorString}`;
 }

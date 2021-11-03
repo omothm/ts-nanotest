@@ -71,3 +71,43 @@ export function createAllHookSuiteSpy(
 
   return { suite: TestSuiteSpy, callOrder };
 }
+
+export function createSuiteWithFailingHook(
+  failingHook: 'beforeAll' | 'afterAll' | 'beforeEach' | 'afterEach',
+): new () => TestSuite {
+
+  return class extends TestSuite {
+
+    beforeAll() {
+      if (failingHook === 'beforeAll') {
+        throw new Error();
+      }
+    }
+
+    afterAll() {
+      if (failingHook === 'afterAll') {
+        throw new Error();
+      }
+    }
+
+    beforeEach() {
+      if (failingHook === 'beforeEach') {
+        throw new Error();
+      }
+    }
+
+    afterEach() {
+      if (failingHook === 'afterEach') {
+        throw new Error();
+      }
+    }
+
+    tests(): TestSpecs {
+      return {
+        test: () => {
+          // pass
+        },
+      };
+    }
+  };
+}

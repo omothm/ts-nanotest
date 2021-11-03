@@ -1,9 +1,10 @@
 import assert, { AssertionError } from 'assert';
-import { NoTestSuitesError } from '../src/core/errors';
+import { HookError, NoTestSuitesError } from '../src/core/errors';
 import TestReporter from '../src/core/reporter';
 import { TestSuite } from '../src/core/suite';
 import TestRunner from '../src/impl/runner';
-import { createAllHookSuiteSpy, createFailingSuite, createPassingSuite } from './common';
+import { createAllHookSuiteSpy, createFailingSuite, createPassingSuite, createSuiteWithFailingHook }
+  from './common';
 
 export default [
 
@@ -28,6 +29,46 @@ export default [
     assert.equal(report[0].suite, passingSuite.name);
     assert.equal(report[0].test, testName);
     assert.equal(report[0].error, null);
+  },
+
+  async function testRunner_singleSuite_hookFail_beforeAll(): Promise<void> {
+
+    const suite = createSuiteWithFailingHook('beforeAll');
+    const runner = new TestRunnerProxy([suite]);
+
+    await assert.rejects(async () => {
+      await runner.runAndGetReport();
+    }, HookError);
+  },
+
+  async function testRunner_singleSuite_hookFail_afterAll(): Promise<void> {
+
+    const suite = createSuiteWithFailingHook('afterAll');
+    const runner = new TestRunnerProxy([suite]);
+
+    await assert.rejects(async () => {
+      await runner.runAndGetReport();
+    }, HookError);
+  },
+
+  async function testRunner_singleSuite_hookFail_beforeEach(): Promise<void> {
+
+    const suite = createSuiteWithFailingHook('beforeEach');
+    const runner = new TestRunnerProxy([suite]);
+
+    await assert.rejects(async () => {
+      await runner.runAndGetReport();
+    }, HookError);
+  },
+
+  async function testRunner_singleSuite_hookFail_afterEach(): Promise<void> {
+
+    const suite = createSuiteWithFailingHook('afterEach');
+    const runner = new TestRunnerProxy([suite]);
+
+    await assert.rejects(async () => {
+      await runner.runAndGetReport();
+    }, HookError);
   },
 
   async function testRunner_singleSuite_singleTest_fail(): Promise<void> {
