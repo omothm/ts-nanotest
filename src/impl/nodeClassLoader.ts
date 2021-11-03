@@ -1,5 +1,5 @@
 import ClassLoader from '../core/classLoader';
-import TestError from '../core/error';
+import { ClassLoadError } from '../core/errors';
 import { TestSuite } from '../core/suite';
 
 export default class NodeClassLoader implements ClassLoader {
@@ -15,7 +15,7 @@ export default class NodeClassLoader implements ClassLoader {
 
     } catch (err) {
       console.error(err);
-      throw new TestError(`Could not load test suite from ${filepath}`);
+      throw new ClassLoadError(`Could not load test suite from ${filepath}`);
 
     }
   }

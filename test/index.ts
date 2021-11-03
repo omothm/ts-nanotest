@@ -1,11 +1,5 @@
-import testFramework from './framework.test';
-import testFramework_classLoadFail from './framework_classLoadFail.test';
-import testRunner_noSuites from './runner_noSuites.test';
-import testRunner_singleSuite_singleTest_fail from './runner_singleSuite_singleTest_fail.test';
-import testRunner_singleSuite_singleTest_pass from './runner_singleSuite_singleTest_pass.test';
-import testRunner_singleSuite_manyTests_allHooks
-  from './runner_singleSuite_manyTests_allHooks.test';
-import testRunner_manySuites from './runner_manySuites.test';
+import frameworkTests from './framework.test';
+import runnerTests from './runner.test';
 
 run().catch((reason) => {
   console.error(reason);
@@ -15,13 +9,8 @@ run().catch((reason) => {
 async function run() {
 
   const testFunctions = [
-    testFramework,
-    testFramework_classLoadFail,
-    testRunner_noSuites,
-    testRunner_singleSuite_singleTest_pass,
-    testRunner_singleSuite_singleTest_fail,
-    testRunner_singleSuite_manyTests_allHooks,
-    testRunner_manySuites,
+    ...frameworkTests,
+    ...runnerTests,
   ];
 
   for (const func of testFunctions) {

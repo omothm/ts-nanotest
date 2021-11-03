@@ -1,56 +1,118 @@
-import assert from 'assert';
+import assert, { AssertionError } from 'assert';
 import ClassLoader from '../src/core/classLoader';
 import DirectoryReader from '../src/core/directoryReader';
+import { ClassLoadError, NoTestSuitesError } from '../src/core/errors';
 import TestReporter from '../src/core/reporter';
-import { TestSpecs, TestSuite } from '../src/core/suite';
+import { TestSuite } from '../src/core/suite';
 import TestFramework from '../src/impl/framework';
+import { createFailingSuite, createPassingSuite } from './common';
 
-const testPattern = '**/*.test.ts';
-const testFiles = ['src/some.test.ts'];
-const testName = 'example test';
+export default [
 
-export default async function testFramework(): Promise<void> {
+  async function testFramework_noFiles(): Promise<void> {
+    const framework = createFrameworkThatDetectsNoFiles();
 
-  const directoryReader = new DirectoryReaderStub();
-  const classLoader = new ClassLoaderStub();
-  const reporter = new TestReporter();
-  const framework = new TestFramework(directoryReader, classLoader, reporter);
+    await assert.rejects(async () => {
+      await framework.runTestsAndGetReport();
+    }, NoTestSuitesError);
+  },
 
-  await framework.test([testPattern]);
+  async function testFramework_classLoadFail(): Promise<void> {
+    const framework = createFrameworkThatFailsToLoadClass();
 
-  const report = reporter.getReport();
+    await assert.rejects(async () => {
+      await framework.runTestsAndGetReport();
+    }, ClassLoadError);
+  },
 
-  assert.equal(report.length, 1);
-  assert.equal(report[0].suite, TestSuiteStub.name);
-  assert.equal(report[0].test, testName);
-  assert.equal(report[0].error, null);
+  async function testFramework_singleSuite(): Promise<void> {
+    const passingTestName = 'passing test';
+    const passingSuite = createPassingSuite(passingTestName);
+    const framework = createFramework({ passingSuite });
+
+    const report = await framework.runTestsAndGetReport();
+
+    assert.equal(report.length, 1);
+    assert.equal(report[0].suite, passingSuite.name);
+    assert.equal(report[0].test, passingTestName);
+    assert.equal(report[0].error, null);
+  },
+
+  async function testFramework_manySuites(): Promise<void> {
+    const passingTestName = 'passing test';
+    const passingSuite = createPassingSuite(passingTestName);
+    const failingTestName = 'failing test';
+    const failingSuite = createFailingSuite(failingTestName);
+    const framework = createFramework({ passingSuite, failingSuite });
+
+    const report = await framework.runTestsAndGetReport();
+
+    assert.equal(report.length, 2);
+    assert.equal(report[0].suite, passingSuite.name);
+    assert.equal(report[0].test, passingTestName);
+    assert.equal(report[0].error, null);
+    assert.equal(report[1].suite, failingSuite.name);
+    assert.equal(report[1].test, failingTestName);
+    assert.ok(report[1].error instanceof AssertionError);
+  },
+
+];
+
+function createFrameworkThatDetectsNoFiles() {
+  return new FrameworkProxy({});
+}
+
+function createFrameworkThatFailsToLoadClass() {
+  return new FrameworkProxy({ file: null });
+}
+
+function createFramework(suiteClasses: { [file: string]: new () => TestSuite }) {
+  return new FrameworkProxy(suiteClasses);
+}
+
+class FrameworkProxy {
+
+  private framework: TestFramework;
+  private reporter: TestReporter;
+
+  constructor(suiteClasses: { [file: string]: (new () => TestSuite) | null }) {
+
+    const directoryReader = new DirectoryReaderStub(Object.keys(suiteClasses));
+    const classLoader = new ClassLoaderStub(suiteClasses);
+    this.reporter = new TestReporter();
+    this.framework = new TestFramework(directoryReader, classLoader, this.reporter);
+  }
+
+  async runTestsAndGetReport(): Promise<TestReport[]> {
+    await this.framework.test([]);
+    return this.reporter.getReport();
+  }
 }
 
 class DirectoryReaderStub implements DirectoryReader {
-  read(globPatterns: string[]): string[] {
-    if (globPatterns[0] !== testPattern) {
-      throw new Error('Not stubbed');
-    }
-    return testFiles;
+
+  constructor(private testFiles: string[]) { }
+
+  read(_globPatterns: string[]): string[] {
+    return this.testFiles;
   }
 }
 
 class ClassLoaderStub implements ClassLoader {
+
+  constructor(private suiteClasses: { [file: string]: (new () => TestSuite) | null }) { }
+
   load(filepath: string): Promise<new () => TestSuite> {
-    if (filepath !== testFiles[0]) {
-      throw new Error('Not stubbed');
+    const suiteClass = this.suiteClasses[filepath];
+    if (!(suiteClass instanceof Function)) {
+      throw new ClassLoadError();
     }
-    return Promise.resolve(TestSuiteStub);
+    return Promise.resolve(suiteClass);
   }
 }
 
-class TestSuiteStub extends TestSuite {
-
-  override tests(): TestSpecs {
-    return {
-      [testName]: () => {
-        // dummy
-      },
-    };
-  }
+interface TestReport {
+  suite: string;
+  test: string;
+  error: Error | null;
 }

@@ -1,4 +1,4 @@
-import TestError from '../core/error';
+import { NoTestSuitesError } from '../core/errors';
 import { TestSuite } from '../core/suite';
 import TestReporter from '../core/reporter';
 
@@ -9,7 +9,7 @@ export default class TestRunner {
   async run(classes: (new () => TestSuite)[]): Promise<void> {
 
     if (!classes.length) {
-      throw new TestError('No test suites found');
+      throw new NoTestSuitesError();
     }
 
     this.reporter.begin();

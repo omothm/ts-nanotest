@@ -1,0 +1,123 @@
+import assert, { AssertionError } from 'assert';
+import { NoTestSuitesError } from '../src/core/errors';
+import TestReporter from '../src/core/reporter';
+import { TestSuite } from '../src/core/suite';
+import TestRunner from '../src/impl/runner';
+import { createAllHookSuiteSpy, createFailingSuite, createPassingSuite } from './common';
+
+export default [
+
+  async function testRunner_noSuites(): Promise<void> {
+
+    const runner = new TestRunnerProxy([]);
+
+    await assert.rejects(async () => {
+      await runner.runAndGetReport();
+    }, NoTestSuitesError);
+  },
+
+  async function testRunner_singleSuite_singleTest_pass(): Promise<void> {
+
+    const testName = 'passing test';
+    const passingSuite = createPassingSuite(testName);
+    const runner = new TestRunnerProxy([passingSuite]);
+
+    const report = await runner.runAndGetReport();
+
+    assert.equal(report.length, 1);
+    assert.equal(report[0].suite, passingSuite.name);
+    assert.equal(report[0].test, testName);
+    assert.equal(report[0].error, null);
+  },
+
+  async function testRunner_singleSuite_singleTest_fail(): Promise<void> {
+
+    const testName = 'failing test';
+    const failingSuite = createFailingSuite(testName);
+    const runner = new TestRunnerProxy([failingSuite]);
+
+    const report = await runner.runAndGetReport();
+
+    assert.equal(report.length, 1);
+    assert.equal(report[0].suite, failingSuite.name);
+    assert.equal(report[0].test, testName);
+    assert.ok(report[0].error instanceof AssertionError);
+  },
+
+  async function testRunner_singleSuite_manyTests_allHooks(): Promise<void> {
+
+    const beforeAll = 'ba';
+    const beforeEach = 'be';
+    const afterEach = 'ae';
+    const afterAll = 'aa';
+    const testNames = ['t1', 't2'];
+    const { suite, callOrder } = createAllHookSuiteSpy(
+      { beforeAll, beforeEach, afterEach, afterAll },
+      testNames,
+    );
+    const runner = new TestRunnerProxy([suite]);
+
+    const report = await runner.runAndGetReport();
+
+    assert.equal(report.length, 2);
+    assert.equal(report[0].suite, suite.name);
+    assert.equal(report[0].test, testNames[0]);
+    assert.equal(report[0].error, null);
+    assert.equal(report[1].suite, suite.name);
+    assert.equal(report[1].test, testNames[1]);
+    assert.equal(report[1].error, null);
+    assert.equal(
+      callOrder.join(','),
+      [
+        beforeAll,
+        beforeEach,
+        testNames[0],
+        afterEach,
+        beforeEach,
+        testNames[1],
+        afterEach,
+        afterAll,
+      ].join(','),
+    );
+  },
+
+  async function testRunner_manySuites(): Promise<void> {
+
+    const passingTestName = 'passing test';
+    const passingSuite = createPassingSuite(passingTestName);
+    const failingTestName = 'failing test';
+    const failingSuite = createFailingSuite(failingTestName);
+    const runner = new TestRunnerProxy([passingSuite, failingSuite]);
+
+    const report = await runner.runAndGetReport();
+
+    assert.equal(report.length, 2);
+    assert.equal(report[0].suite, passingSuite.name);
+    assert.equal(report[0].test, passingTestName);
+    assert.equal(report[1].suite, failingSuite.name);
+    assert.equal(report[1].test, failingTestName);
+  },
+
+];
+
+class TestRunnerProxy {
+
+  private runner: TestRunner;
+  private reporter: TestReporter;
+
+  constructor(private suiteClasses: (new () => TestSuite)[]) {
+    this.reporter = new TestReporter();
+    this.runner = new TestRunner(this.reporter);
+  }
+
+  async runAndGetReport(): Promise<TestReport[]> {
+    await this.runner.run(this.suiteClasses);
+    return this.reporter.getReport();
+  }
+}
+
+interface TestReport {
+  suite: string;
+  test: string;
+  error: Error | null;
+}
