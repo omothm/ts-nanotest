@@ -1,6 +1,7 @@
 # TS Nanotest
 
 [![npm version](https://badge.fury.io/js/ts-nanotest.svg)](https://www.npmjs.com/package/ts-nanotest)
+![CI](https://github.com/omothm/ts-nanotest/actions/workflows/ci.yml/badge.svg)
 
 Bare-bones Typescript test runner. No bells and whistles.
 
