@@ -72,6 +72,38 @@ export function createAllHookSuiteSpy(
   return { suite: TestSuiteSpy, callOrder };
 }
 
+export function createSuiteSpyWithFailingTestsAndAfterHooks(
+  afterEach: string,
+  afterAll: string,
+  testNames: string[],
+): { suite: new () => TestSuite; callOrder: string[] } {
+
+  const callOrder: string[] = [];
+
+  class TestSuiteSpy extends TestSuite {
+
+    afterEach() {
+      callOrder.push(afterEach);
+    }
+
+    afterAll() {
+      callOrder.push(afterAll);
+    }
+
+    tests(): TestSpecs {
+      const specs: TestSpecs = {};
+      for (const testName of testNames) {
+        specs[testName] = () => {
+          throw new Error();
+        };
+      }
+      return specs;
+    }
+  }
+
+  return { suite: TestSuiteSpy, callOrder };
+}
+
 export function createSuiteWithFailingHook(
   failingHook: 'beforeAll' | 'afterAll' | 'beforeEach' | 'afterEach',
 ): new () => TestSuite {

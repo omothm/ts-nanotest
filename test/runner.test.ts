@@ -3,8 +3,8 @@ import { HookError, NoTestSuitesError } from '../src/core/errors';
 import TestReporter from '../src/core/reporter';
 import { TestSuite } from '../src/core/suite';
 import TestRunner from '../src/impl/runner';
-import { createAllHookSuiteSpy, createFailingSuite, createPassingSuite, createSuiteWithFailingHook }
-  from './common';
+import { createAllHookSuiteSpy, createFailingSuite, createPassingSuite,
+  createSuiteSpyWithFailingTestsAndAfterHooks, createSuiteWithFailingHook } from './common';
 
 export default [
 
@@ -120,6 +120,28 @@ export default [
         afterAll,
       ].join(','),
     );
+  },
+
+  async function testRunner_singleSuite_manyTests_afterHooksAlwaysCalled(): Promise<void> {
+
+    const afterEach = 'ae';
+    const afterAll = 'aa';
+    const testNames = ['t1', 't2'];
+    const { suite, callOrder } = createSuiteSpyWithFailingTestsAndAfterHooks(
+      afterEach, afterAll, testNames,
+    );
+    const runner = new TestRunnerProxy([suite]);
+
+    const report = await runner.runAndGetReport();
+
+    assert.equal(report.length, 2);
+    assert.equal(report[0].suite, suite.name);
+    assert.equal(report[0].test, testNames[0]);
+    assert.ok(report[0].error != null);
+    assert.equal(report[1].suite, suite.name);
+    assert.equal(report[1].test, testNames[1]);
+    assert.ok(report[1].error != null);
+    assert.equal(callOrder.join(','), [afterEach, afterEach, afterAll].join(','));
   },
 
   async function testRunner_manySuites(): Promise<void> {
