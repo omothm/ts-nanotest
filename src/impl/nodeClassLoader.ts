@@ -14,8 +14,10 @@ export default class NodeClassLoader implements ClassLoader {
       return suiteClass;
 
     } catch (err) {
-      console.error(err);
-      throw new ClassLoadError(`Could not load test suite from ${filepath}`);
+      const errString = err instanceof Error
+        ? err.stack || err.message
+        : (err as object).toString();
+      throw new ClassLoadError(`Could not load test suite from ${filepath}\n${errString}`);
 
     }
   }

@@ -1,7 +1,6 @@
-import fs from 'fs';
-import path from 'path';
 import assert from 'assert';
 import NodeDirectoryReader from '../../src/impl/nodeDirectoryReader';
+import { cleanupTestBaseDirectory, createFile, createTestBaseDirectory, fullPath } from './common';
 import config from './config';
 
 export default [
@@ -112,31 +111,6 @@ export default [
   },
 
 ];
-
-function createTestBaseDirectory() {
-  cleanupTestBaseDirectory();
-  createDirectoryRecursively(config.testDirectory);
-}
-
-function cleanupTestBaseDirectory() {
-  fs.rmSync(config.testDirectory, { recursive: true, force: true });
-}
-
-function createFile(filename: string) {
-  const fileDirectory = path.dirname(filename);
-  if (!fs.existsSync(fileDirectory)) {
-    createDirectoryRecursively(path.join(config.testDirectory, fileDirectory));
-  }
-  fs.writeFileSync(fullPath(filename), '');
-}
-
-function createDirectoryRecursively(directory: string) {
-  fs.mkdirSync(directory, { recursive: true });
-}
-
-function fullPath(filename: string) {
-  return path.resolve(config.testDirectory, filename);
-}
 
 class NodeDirectoryReaderProxy {
 
