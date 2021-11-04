@@ -16,6 +16,7 @@ async function run() {
   for (const func of testFunctions) {
     try {
       await func();
+      console.log(`OK: ${func.name}`);
     } catch (err) {
       console.error(`Error in ${func.name}`);
       console.error(err);
