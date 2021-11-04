@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { TestSpecs, TestSuite } from '../src/core/suite';
+import { TestSpecs, TestSuite } from '../../src/core/suite';
 
 export function createPassingSuite(testName: string): new () => TestSuite {
   return class extends TestSuite {

@@ -1,5 +1,6 @@
-import frameworkTests from './framework.test';
-import runnerTests from './runner.test';
+import nodeDirectoryReaderTests from './integration/nodeDirectoryReader.test';
+import frameworkTests from './unit/framework.test';
+import runnerTests from './unit/runner.test';
 
 run().catch((reason) => {
   console.error(reason);
@@ -8,10 +9,18 @@ run().catch((reason) => {
 
 async function run() {
 
-  const testFunctions = [
+  const integration = process.argv.length > 2 ? process.argv[2] === '-i' : false;
+
+  const unitTestFunctions = [
     ...frameworkTests,
     ...runnerTests,
   ];
+
+  const integrationTestFunctions = [
+    ...nodeDirectoryReaderTests,
+  ];
+
+  const testFunctions = integration ? integrationTestFunctions : unitTestFunctions;
 
   for (const func of testFunctions) {
     try {
@@ -24,5 +33,5 @@ async function run() {
     }
   }
 
-  console.log('all pass');
+  console.log('\nall pass');
 }

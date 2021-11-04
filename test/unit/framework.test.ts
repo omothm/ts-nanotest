@@ -1,10 +1,10 @@
 import assert, { AssertionError } from 'assert';
-import ClassLoader from '../src/core/classLoader';
-import DirectoryReader from '../src/core/directoryReader';
-import { ClassLoadError, NoTestSuitesError } from '../src/core/errors';
-import TestReporter from '../src/core/reporter';
-import { TestSuite } from '../src/core/suite';
-import TestFramework from '../src/impl/framework';
+import ClassLoader from '../../src/core/classLoader';
+import DirectoryReader from '../../src/core/directoryReader';
+import { ClassLoadError, NoTestSuitesError } from '../../src/core/errors';
+import TestReporter from '../../src/core/reporter';
+import { TestSuite } from '../../src/core/suite';
+import TestFramework from '../../src/impl/framework';
 import { createFailingSuite, createPassingSuite } from './common';
 
 export default [
