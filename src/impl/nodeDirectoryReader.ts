@@ -3,9 +3,9 @@ import DirectoryReader from '../core/directoryReader';
 
 export default class NodeDirectoryReader implements DirectoryReader {
 
-  read(globPatterns: string[]): string[] {
+  read(globPatterns: string[], cwd?: string): string[] {
     return globPatterns.reduce((prev, cur) => {
-      prev.push(...readDirectory(cur, { realpath: true }));
+      prev.push(...readDirectory(cur, { realpath: true, cwd }));
       return prev;
     }, [] as string[]);
   }
