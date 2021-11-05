@@ -1,7 +1,8 @@
 {
   "name": "ts-nanotest",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Bare-bones Typescript test runner",
+  "main": "lib/index.js",
   "bin": "lib/cli.js",
   "files": ["lib"],
   "scripts": {
