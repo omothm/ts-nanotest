@@ -1,4 +1,6 @@
-export abstract class TestSuite {
+import TestCases from './cases';
+
+export default abstract class TestSuite {
 
   beforeEach(): void | Promise<void> {
     return;
@@ -16,9 +18,5 @@ export abstract class TestSuite {
     return;
   }
 
-  abstract tests(): TestSpecs;
-}
-
-export interface TestSpecs {
-  [description: string]: () => void | Promise<void>;
+  abstract tests(): TestCases;
 }

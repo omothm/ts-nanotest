@@ -1,9 +1,9 @@
 import assert from 'assert';
-import { TestSpecs, TestSuite } from '../../src/core/suite';
+import { TestCases, TestSuite } from '../../src';
 
 export function createPassingSuite(testName: string): new () => TestSuite {
   return class extends TestSuite {
-    tests(): TestSpecs {
+    tests(): TestCases {
       return {
         [testName || 'test']: () => {
           // pass
@@ -15,7 +15,7 @@ export function createPassingSuite(testName: string): new () => TestSuite {
 
 export function createFailingSuite(testName: string): new () => TestSuite {
   return class extends TestSuite {
-    tests(): TestSpecs {
+    tests(): TestCases {
       return {
         [testName]: () => {
           assert.equal(1, 2);
@@ -58,14 +58,14 @@ export function createAllHookSuiteSpy(
       }
     }
 
-    tests(): TestSpecs {
-      const specs: TestSpecs = {};
+    tests(): TestCases {
+      const cases: TestCases = {};
       for (const testName of testNames) {
-        specs[testName] = () => {
+        cases[testName] = () => {
           callOrder.push(testName);
         };
       }
-      return specs;
+      return cases;
     }
   }
 
@@ -90,14 +90,14 @@ export function createSuiteSpyWithFailingTestsAndAfterHooks(
       callOrder.push(afterAll);
     }
 
-    tests(): TestSpecs {
-      const specs: TestSpecs = {};
+    tests(): TestCases {
+      const cases: TestCases = {};
       for (const testName of testNames) {
-        specs[testName] = () => {
+        cases[testName] = () => {
           throw new Error();
         };
       }
-      return specs;
+      return cases;
     }
   }
 
@@ -134,7 +134,7 @@ export function createSuiteWithFailingHook(
       }
     }
 
-    tests(): TestSpecs {
+    tests(): TestCases {
       return {
         test: () => {
           // pass

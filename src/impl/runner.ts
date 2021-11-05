@@ -1,6 +1,6 @@
-import { HookError, NoTestSuitesError } from '../core/errors';
-import { TestSuite } from '../core/suite';
-import TestReporter from '../core/reporter';
+import { HookError, NoTestSuitesError } from '../errors';
+import TestSuite from '../core/suite';
+import TestReporter from './reporter';
 
 export default class TestRunner {
 

@@ -1,4 +1,4 @@
-import TestReport from './report';
+import TestReport from '../core/report';
 
 export default class TestReporter {
 

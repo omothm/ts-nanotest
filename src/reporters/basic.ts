@@ -1,5 +1,5 @@
 import TestReport from '../core/report';
-import TestReporter from '../core/reporter';
+import TestReporter from '../impl/reporter';
 
 export default class BasicReporter extends TestReporter {
 

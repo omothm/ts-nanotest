@@ -1,7 +1,7 @@
 import assert, { AssertionError } from 'assert';
-import { HookError, NoTestSuitesError } from '../../src/core/errors';
-import TestReporter from '../../src/core/reporter';
-import { TestSuite } from '../../src/core/suite';
+import { HookError, NoTestSuitesError } from '../../src/errors';
+import TestReporter from '../../src/impl/reporter';
+import { TestSuite } from '../../src';
 import TestRunner from '../../src/impl/runner';
 import { createAllHookSuiteSpy, createFailingSuite, createPassingSuite,
   createSuiteSpyWithFailingTestsAndAfterHooks, createSuiteWithFailingHook } from './common';

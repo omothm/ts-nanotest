@@ -1,6 +1,6 @@
 import ClassLoader from './core/classLoader';
 import DirectoryReader from './core/directoryReader';
-import TestReporter from './core/reporter';
+import TestReporter from './impl/reporter';
 import TestFramework from './impl/framework';
 import NodeClassLoader from './impl/nodeClassLoader';
 import NodeDirectoryReader from './impl/nodeDirectoryReader';

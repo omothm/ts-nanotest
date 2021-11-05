@@ -1,7 +1,7 @@
 import ClassLoader from '../core/classLoader';
 import DirectoryReader from '../core/directoryReader';
-import TestReporter from '../core/reporter';
-import { TestSuite } from '../core/suite';
+import TestSuite from '../core/suite';
+import TestReporter from './reporter';
 import TestRunner from './runner';
 
 export default class TestFramework {

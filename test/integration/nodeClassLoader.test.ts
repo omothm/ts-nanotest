@@ -1,7 +1,7 @@
 import path from 'path';
 import assert, { AssertionError } from 'assert';
-import { ClassLoadError } from '../../src/core/errors';
-import { TestSuite } from '../../src/core/suite';
+import { ClassLoadError } from '../../src/errors';
+import { TestSuite } from '../../src';
 import NodeClassLoader from '../../src/impl/nodeClassLoader';
 import { cleanupTestBaseDirectory, createFile, createTestBaseDirectory, fullPath } from './common';
 
@@ -59,9 +59,9 @@ function createTestSuiteFile(filename: string) {
 
   createFile(filename, `
     import assert from 'assert';
-    import { TestSpecs, TestSuite } from '${rootDir}/src';
+    import { TestCases, TestSuite } from '${rootDir}/src';
     export default class ExampleTest extends TestSuite {
-      tests(): TestSpecs {
+      tests(): TestCases {
         return {
           test: () => { assert.equal(1, 2); },
         };

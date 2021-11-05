@@ -1,6 +1,6 @@
 import ClassLoader from '../core/classLoader';
-import { ClassLoadError } from '../core/errors';
-import { TestSuite } from '../core/suite';
+import { ClassLoadError } from '../errors';
+import TestSuite from '../core/suite';
 
 export default class NodeClassLoader implements ClassLoader {
 
