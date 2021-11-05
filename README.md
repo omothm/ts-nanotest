@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/ts-nanotest.svg)](https://www.npmjs.com/package/ts-nanotest)
 ![CI](https://github.com/omothm/ts-nanotest/actions/workflows/ci.yml/badge.svg)
 
-Bare-bones Typescript test runner. No bells and whistles.
+Bare-bones Typescript test runner. No bells and whistles. Zero-config.
 
 ## Installation
 
@@ -25,7 +25,7 @@ Use it in the test script:
 }
 ```
 
-You can drop `**/*.test.ts` as it is assumed by default, or change it to what suits your project.
+You can drop `**/*.test.ts` as it is assumed by default.
 
 ## Usage
 
@@ -34,13 +34,13 @@ Create a test class as follows:
 ```typescript
 // cook.test.ts
 
-import { TestSpecs, TestSuite } from 'ts-nanotest';
+import { TestCases, TestSuite } from 'ts-nanotest';
 import assert from 'assert';
 
 export default class CookTest extends TestSuite {
-  override tests(): TestSpecs {
+  override tests(): TestCases {
     return {
-      'should cook lunch': () => {
+      'should cook lunch with low calories': () => {
         const lunch = cookLunch();
         assert.equal(lunch.calories, 'low');
       },
@@ -50,7 +50,7 @@ export default class CookTest extends TestSuite {
 ```
 
 Nanotest does not use global definitions (such as `describe` and `it`). No assertion helpers either.
-Plain-old `assert` is deemed sufficient.
+`assert` almost always suffices. You can still use assertion libraries with Nanotest.
 
 Run the tests via NPM script:
 
@@ -58,7 +58,7 @@ Run the tests via NPM script:
 
 ... or directly (needs global installation: `npm install --global ts-nanotest`):
 
-    $ ts-nanotest <glob-pattern>
+    $ ts-nanotest <glob-pattern>...
 
 ## Hooks
 
@@ -69,12 +69,12 @@ Run the tests via NPM script:
 - `beforeEach`
 - `afterEach`
 
-All hooks can be `async`.
+All hooks can be `async`. The after-hooks are **always called**, even if the test failed.
 
 ### Example
 
 ```typescript
-import { TestSpecs, TestSuite } from 'ts-nanotest';
+import { TestCases, TestSuite } from 'ts-nanotest';
 import assert from 'assert';
 
 export default class AdvancedCookTest extends TestSuite {
@@ -94,9 +94,9 @@ export default class AdvancedCookTest extends TestSuite {
     washTheDishes();
   }
 
-  override tests(): TestSpecs {
+  override tests(): TestCases {
     return {
-      'should cook dinner': () => {
+      'should cook a delicious dinner': () => {
         const dinner = cookDinner();
         assert.equals(dinner.salt, 'perfect');
       },
@@ -111,3 +111,19 @@ export default class AdvancedCookTest extends TestSuite {
   }
 }
 ```
+
+## Why
+
+Testing should be fast, easy, light, and manageable. These characteristics are especially important
+if you are practising test-driven development (TDD).
+
+**Fast.** Most projects should have all their tests run in a few _seconds_.
+
+**Easy.** Writing tests should be as easy as writing production code. No learning curve.
+
+**Light.** Test packages (not the tests themselves) should have almost no effect on the size of a
+project.
+
+**Manageable.** Test packages should interface with but be isolated from the production environment.
+
+To achieve this, Nanotest includes only the bare minimum.
