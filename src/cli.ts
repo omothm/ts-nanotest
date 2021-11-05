@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import ClassLoader from './core/classLoader';
 import DirectoryReader from './core/directoryReader';
 import TestReporter from './impl/reporter';
