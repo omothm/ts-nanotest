@@ -31,6 +31,20 @@ export default [
     assert.equal(report[0].error, null);
   },
 
+  async function testRunner_singleSuite_singleTest_fail(): Promise<void> {
+
+    const testName = 'failing test';
+    const failingSuite = createFailingSuite(testName);
+    const runner = new TestRunnerProxy([failingSuite]);
+
+    const report = await runner.runAndGetReport();
+
+    assert.equal(report.length, 1);
+    assert.equal(report[0].suite, failingSuite.name);
+    assert.equal(report[0].test, testName);
+    assert.ok(report[0].error instanceof AssertionError);
+  },
+
   async function testRunner_singleSuite_hookFail_beforeAll(): Promise<void> {
 
     const suite = createSuiteWithFailingHook('beforeAll');
@@ -69,20 +83,6 @@ export default [
     await assert.rejects(async () => {
       await runner.runAndGetReport();
     }, HookError);
-  },
-
-  async function testRunner_singleSuite_singleTest_fail(): Promise<void> {
-
-    const testName = 'failing test';
-    const failingSuite = createFailingSuite(testName);
-    const runner = new TestRunnerProxy([failingSuite]);
-
-    const report = await runner.runAndGetReport();
-
-    assert.equal(report.length, 1);
-    assert.equal(report[0].suite, failingSuite.name);
-    assert.equal(report[0].test, testName);
-    assert.ok(report[0].error instanceof AssertionError);
   },
 
   async function testRunner_singleSuite_manyTests_allHooks(): Promise<void> {
