@@ -34,17 +34,17 @@ Create a test class as follows:
 ```typescript
 // cook.test.ts
 
-import { TestCases, TestSuite } from 'ts-nanotest';
+import { TestCase, TestSuite } from 'ts-nanotest';
 import assert from 'assert';
 
 export default class CookTest extends TestSuite {
-  override tests(): TestCases {
-    return {
-      'should cook lunch with low calories': () => {
+  override tests(): TestCase[] {
+    return [
+      this.test('should cook lunch with low calories', () => {
         const lunch = cookLunch();
         assert.equal(lunch.calories, 'low');
-      },
-    };
+      }),
+    ];
   }
 }
 ```
@@ -74,7 +74,7 @@ All hooks can be `async`. The after-hooks are **always called**, even if the tes
 ### Example
 
 ```typescript
-import { TestCases, TestSuite } from 'ts-nanotest';
+import { TestCase, TestSuite } from 'ts-nanotest';
 import assert from 'assert';
 
 export default class AdvancedCookTest extends TestSuite {
@@ -94,23 +94,28 @@ export default class AdvancedCookTest extends TestSuite {
     washTheDishes();
   }
 
-  override tests(): TestCases {
-    return {
-      'should cook a delicious dinner': () => {
+  override tests(): TestCase[] {
+    return [
+      this.test('should cook a delicious dinner', () => {
         const dinner = cookDinner();
         assert.equals(dinner.salt, 'perfect');
-      },
+      }),
 
-      'should reject bad taste': async () => {
+      this.test('should reject bad taste', async () => {
         const badDish = cookSomethingBad();
         await assert.rejects(async () => {
           await judge.taste(badDish);
         }, BadTasteError);
-      },
-    };
+      }),
+    ];
   }
 }
 ```
+
+## Skipping tests
+
+Sometimes you need to temporarily skip some tests during active development. To do so, use
+`this.skip()` instead of `this.test()`.
 
 ## Why
 
