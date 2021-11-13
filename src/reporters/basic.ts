@@ -5,6 +5,7 @@ export default class BasicReporter extends TestReporter {
 
   private static tick = '\u2713 ';
   private static cross = '\u274C';
+  private static skipped = '- ';
 
   private currentSuite = '';
   private suites = new Set<string>();
@@ -48,16 +49,27 @@ export default class BasicReporter extends TestReporter {
   }
 
   private testResult(report: TestReport) {
-    const symbol = report.error ? Color.red(BasicReporter.cross) : Color.green(BasicReporter.tick);
+    const symbol = this.chooseSymbol(report);
     const errorNumber = report.error ? Color.red(` (${this.errors.length})`) : '';
     console.log(`  ${symbol} ${report.test}${errorNumber}`);
   }
 
   private stats() {
-    console.log(`Total suites: ${this.suites.size}`);
-    console.log(`Total tests:  ${this.reports.length}`);
-    console.log(`Total passed: ${this.reports.filter((r) => !r.error).length}`);
-    console.log(`Total failed: ${this.reports.filter((r) => r.error).length}`);
+    console.log(`Total suites:  ${this.suites.size}`);
+    console.log(`Total tests:   ${this.reports.length}`);
+    console.log(`Total passed:  ${this.reports.filter((r) => !r.error && !r.skipped).length}`);
+    console.log(`Total failed:  ${this.reports.filter((r) => r.error).length}`);
+    console.log(`Total skipped: ${this.reports.filter((r) => r.skipped).length}`);
+  }
+
+  private chooseSymbol(report: TestReport) {
+    if (report.error) {
+      return Color.red(BasicReporter.cross);
+    }
+    if (report.skipped) {
+      return BasicReporter.skipped;
+    }
+    return Color.green(BasicReporter.tick);
   }
 }
 
