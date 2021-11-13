@@ -31,7 +31,7 @@ export default [
     const tests = suite.tests();
 
     await assert.rejects(async () => {
-      await tests.test();
+      await tests[0].run();
     }, AssertionError);
 
     cleanupTestBaseDirectory();
@@ -59,12 +59,12 @@ function createTestSuiteFile(filename: string) {
 
   createFile(filename, `
     import assert from 'assert';
-    import { TestCases, TestSuite } from '${rootDir}/src';
+    import { TestCase, TestSuite } from '${rootDir}/src';
     export default class ExampleTest extends TestSuite {
-      tests(): TestCases {
-        return {
-          test: () => { assert.equal(1, 2); },
-        };
+      tests(): TestCase[] {
+        return [
+          this.test('test', () => { assert.equal(1, 2); }),
+        ];
       }
     }
   `);

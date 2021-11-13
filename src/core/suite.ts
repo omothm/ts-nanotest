@@ -1,4 +1,4 @@
-import TestCases from './cases';
+import TestCase from './case';
 
 export default abstract class TestSuite {
 
@@ -18,5 +18,25 @@ export default abstract class TestSuite {
     return;
   }
 
-  abstract tests(): TestCases;
+  abstract tests(): TestCase[];
+
+  test(
+    name: string,
+    run: () => void | Promise<void>,
+    options?: Omit<TestCase, 'name' | 'run'>,
+  ): TestCase {
+    return {
+      name,
+      run,
+      ...options,
+    };
+  }
+
+  skip(
+    name: string,
+    run: () => void | Promise<void>,
+    options?: Omit<TestCase, 'name' | 'run' | 'skip'>,
+  ): TestCase {
+    return this.test(name, run, { ...options, skip: true });
+  }
 }

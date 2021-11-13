@@ -1,26 +1,26 @@
 import assert from 'assert';
-import { TestCases, TestSuite } from '../../src';
+import { TestCase, TestSuite } from '../../src';
 
 export function createPassingSuite(testName: string): new () => TestSuite {
   return class extends TestSuite {
-    tests(): TestCases {
-      return {
-        [testName || 'test']: () => {
+    tests(): TestCase[] {
+      return [
+        this.test(testName || 'test', () => {
           // pass
-        },
-      };
+        }),
+      ];
     }
   };
 }
 
 export function createFailingSuite(testName: string): new () => TestSuite {
   return class extends TestSuite {
-    tests(): TestCases {
-      return {
-        [testName]: () => {
+    tests(): TestCase[] {
+      return [
+        this.test(testName || 'test', () => {
           assert.equal(1, 2);
-        },
-      };
+        }),
+      ];
     }
   };
 }
@@ -58,12 +58,12 @@ export function createAllHookSuiteSpy(
       }
     }
 
-    tests(): TestCases {
-      const cases: TestCases = {};
+    tests(): TestCase[] {
+      const cases: TestCase[] = [];
       for (const testName of testNames) {
-        cases[testName] = () => {
+        cases.push(this.test(testName, () => {
           callOrder.push(testName);
-        };
+        }));
       }
       return cases;
     }
@@ -90,12 +90,12 @@ export function createSuiteSpyWithFailingTestsAndAfterHooks(
       callOrder.push(afterAll);
     }
 
-    tests(): TestCases {
-      const cases: TestCases = {};
+    tests(): TestCase[] {
+      const cases: TestCase[] = [];
       for (const testName of testNames) {
-        cases[testName] = () => {
+        cases.push(this.test(testName, () => {
           throw new Error();
-        };
+        }));
       }
       return cases;
     }
@@ -134,12 +134,45 @@ export function createSuiteWithFailingHook(
       }
     }
 
-    tests(): TestCases {
-      return {
-        test: () => {
+    tests(): TestCase[] {
+      return [
+        this.test('test', () => {
           // pass
-        },
-      };
+        }),
+      ];
+    }
+  };
+}
+
+export function createSuiteWithSkippedTest(testName: string): new () => TestSuite {
+
+  return class extends TestSuite {
+
+    tests(): TestCase[] {
+      return [
+        this.skip(testName, () => {
+          throw new Error('this should never be thrown');
+        }),
+      ];
+    }
+  };
+}
+
+export function createSuiteWithPassingTestAndSkippedTest(
+  passingTestName: string,
+  skippedTestName: string,
+): new () => TestSuite {
+
+  return class extends TestSuite {
+    tests(): TestCase[] {
+      return [
+        this.test(passingTestName, () => {
+          // pass
+        }),
+        this.skip(skippedTestName, () => {
+          throw new Error('this should never be thrown');
+        }),
+      ];
     }
   };
 }

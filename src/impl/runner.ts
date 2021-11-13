@@ -24,21 +24,32 @@ export default class TestRunner {
         throw new HookError(hookErrorMessage('beforeAll', suiteClass.name, null, err));
       }
 
-      for (const [testName, testFunction] of Object.entries(tests)) {
+      for (const test of tests) {
+
+        if (test.skip) {
+          this.reporter.add({
+            suite: suiteClass.name,
+            test: test.name,
+            skipped: true,
+            error: null,
+          });
+          continue;
+        }
 
         try {
           await suite.beforeEach();
         } catch (err) {
-          throw new HookError(hookErrorMessage('beforeEach', suiteClass.name, testName, err));
+          throw new HookError(hookErrorMessage('beforeEach', suiteClass.name, test.name, err));
         }
 
         try {
 
-          await testFunction();
+          await test.run();
 
           this.reporter.add({
             suite: suiteClass.name,
-            test: testName,
+            test: test.name,
+            skipped: false,
             error: null,
           });
 
@@ -46,7 +57,8 @@ export default class TestRunner {
 
           this.reporter.add({
             suite: suiteClass.name,
-            test: testName,
+            test: test.name,
+            skipped: false,
             error: err as Error,
           });
 
@@ -55,7 +67,7 @@ export default class TestRunner {
         try {
           await suite.afterEach();
         } catch (err) {
-          throw new HookError(hookErrorMessage('afterEach', suiteClass.name, testName, err));
+          throw new HookError(hookErrorMessage('afterEach', suiteClass.name, test.name, err));
         }
 
       }

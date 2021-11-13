@@ -3,8 +3,11 @@ import { HookError, NoTestSuitesError } from '../../src/errors';
 import TestReporter from '../../src/impl/reporter';
 import { TestSuite } from '../../src';
 import TestRunner from '../../src/impl/runner';
-import { createAllHookSuiteSpy, createFailingSuite, createPassingSuite,
-  createSuiteSpyWithFailingTestsAndAfterHooks, createSuiteWithFailingHook } from './common';
+import {
+  createAllHookSuiteSpy, createFailingSuite, createPassingSuite,
+  createSuiteSpyWithFailingTestsAndAfterHooks, createSuiteWithFailingHook,
+  createSuiteWithPassingTestAndSkippedTest, createSuiteWithSkippedTest,
+} from './common';
 
 export default [
 
@@ -144,6 +147,41 @@ export default [
     assert.equal(callOrder.join(','), [afterEach, afterEach, afterAll].join(','));
   },
 
+  async function testRunner_singleSuite_singleTest_skipped(): Promise<void> {
+
+    const skippedTestName = 'skipped test';
+    const suite = createSuiteWithSkippedTest(skippedTestName);
+    const runner = new TestRunnerProxy([suite]);
+
+    const report = await runner.runAndGetReport();
+
+    assert.equal(report.length, 1);
+    assert.equal(report[0].suite, suite.name);
+    assert.equal(report[0].test, skippedTestName);
+    assert.equal(report[0].skipped, true);
+    assert.equal(report[0].error, null);
+  },
+
+  async function testRunner_singleSuite_manyTests_someSkipped(): Promise<void> {
+
+    const passingTestName = 'passing test';
+    const skippedTestName = 'skipped test';
+    const suite = createSuiteWithPassingTestAndSkippedTest(passingTestName, skippedTestName);
+    const runner = new TestRunnerProxy([suite]);
+
+    const report = await runner.runAndGetReport();
+
+    assert.equal(report.length, 2);
+    assert.equal(report[0].suite, suite.name);
+    assert.equal(report[0].test, passingTestName);
+    assert.equal(report[0].skipped, false);
+    assert.equal(report[0].error, null);
+    assert.equal(report[1].suite, suite.name);
+    assert.equal(report[1].test, skippedTestName);
+    assert.equal(report[1].skipped, true);
+    assert.equal(report[1].error, null);
+  },
+
   async function testRunner_manySuites(): Promise<void> {
 
     const passingTestName = 'passing test';
@@ -182,5 +220,6 @@ class TestRunnerProxy {
 interface TestReport {
   suite: string;
   test: string;
+  skipped: boolean;
   error: Error | null;
 }
