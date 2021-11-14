@@ -1,6 +1,6 @@
 {
   "name": "ts-nanotest",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Bare-bones Typescript test runner",
   "main": "lib/index.js",
   "bin": "lib/cli.js",
