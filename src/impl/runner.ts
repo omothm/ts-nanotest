@@ -12,8 +12,6 @@ export default class TestRunner {
       throw new NoTestSuitesError();
     }
 
-    let error = false;
-
     this.reporter.begin();
 
     for (const suiteClass of classes) {
@@ -64,8 +62,6 @@ export default class TestRunner {
             error: err as Error,
           });
 
-          error = true;
-
         }
 
         try {
@@ -84,10 +80,6 @@ export default class TestRunner {
     }
 
     this.reporter.end();
-
-    if (error) {
-      process.exit(1);
-    }
   }
 }
 

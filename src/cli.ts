@@ -27,5 +27,14 @@ async function main() {
     reporter,
   );
 
-  await framework.test(globPatterns);
+  try {
+    await framework.test(globPatterns);
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
+
+  if (reporter.getReport().some((report) => report.error !== null)) {
+    process.exit(1);
+  }
 }

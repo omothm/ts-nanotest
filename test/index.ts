@@ -1,3 +1,4 @@
+import cliTests from './integration/cli.test';
 import nodeDirectoryReaderTests from './integration/nodeDirectoryReader.test';
 import nodeClassLoaderTests from './integration/nodeClassLoader.test';
 import frameworkTests from './unit/framework.test';
@@ -18,6 +19,7 @@ async function run() {
   ];
 
   const integrationTestFunctions = [
+    ...cliTests,
     ...nodeDirectoryReaderTests,
     ...nodeClassLoaderTests,
   ];
