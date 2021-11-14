@@ -49,7 +49,7 @@ export default [
 ];
 
 function runCli(args: string) {
-  execSync(`npx ts-node -T ${rootDir}/src/cli.ts ${args}`, { stdio: 'ignore' });
+  execSync(`npx ts-node ${rootDir}/src/cli.ts ${args}`, { stdio: 'ignore' });
 }
 
 function createPassingTestFile() {

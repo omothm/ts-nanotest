@@ -8,7 +8,7 @@
     "lib"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "./build.sh",
     "lint": "eslint .",
     "test": "ts-node test",
     "test:integration": "ts-node test -i"
