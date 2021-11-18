@@ -33,7 +33,7 @@ export default [
     cleanupTestBaseDirectory();
   },
 
-  function testCli_passingTest(): void | Promise<void> {
+  function testCli_failingTest(): void | Promise<void> {
 
     createTestBaseDirectory();
     createFailingTestFile();
