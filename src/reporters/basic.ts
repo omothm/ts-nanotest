@@ -55,10 +55,13 @@ export default class BasicReporter extends TestReporter {
   }
 
   private stats() {
+    const numPassed = this.reports.filter((r) => !r.error && !r.skipped).length;
+    const numFailed = this.reports.filter((r) => r.error).length;
+
     console.log(`Total suites:  ${this.suites.size}`);
     console.log(`Total tests:   ${this.reports.length}`);
-    console.log(`Total passed:  ${this.reports.filter((r) => !r.error && !r.skipped).length}`);
-    console.log(`Total failed:  ${this.reports.filter((r) => r.error).length}`);
+    console.log(`Total passed:  ${numPassed ? Color.green(numPassed.toString()) : numPassed}`);
+    console.log(`Total failed:  ${numFailed ? Color.red(numFailed.toString()) : numFailed}`);
     console.log(`Total skipped: ${this.reports.filter((r) => r.skipped).length}`);
   }
 
