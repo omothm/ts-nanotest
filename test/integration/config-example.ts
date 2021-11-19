@@ -1,3 +1,3 @@
 export default {
-  testDirectory: '/tmp/ts-nanotest',
+  testDirectory: '.temp-integration',
 };
