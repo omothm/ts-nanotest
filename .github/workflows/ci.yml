@@ -42,6 +42,10 @@ jobs:
         run: |
           npm run lint
 
+      - name: Building
+        run: |
+          npm run build
+
       - name: Unit tests
         run: |
           npm test
