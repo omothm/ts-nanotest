@@ -1,10 +1,7 @@
 import assert, { AssertionError } from 'assert';
-import ClassLoader from '../../src/core/classLoader';
-import DirectoryReader from '../../src/core/directoryReader';
 import { ClassLoadError, NoTestSuitesError } from '../../src/errors';
-import TestReporter from '../../src/impl/reporter';
 import { TestSuite } from '../../src';
-import TestFramework from '../../src/impl/framework';
+import FrameworkProxy from '../common/framework';
 import { createFailingSuite, createPassingSuite } from './common';
 
 export default [
@@ -59,60 +56,13 @@ export default [
 ];
 
 function createFrameworkThatDetectsNoFiles() {
-  return new FrameworkProxy({});
+  return createFramework({});
 }
 
 function createFrameworkThatFailsToLoadClass() {
-  return new FrameworkProxy({ file: null });
+  return createFramework({ file: null });
 }
 
-function createFramework(suiteClasses: { [file: string]: new () => TestSuite }) {
+function createFramework(suiteClasses: { [file: string]: (new () => TestSuite) | null }) {
   return new FrameworkProxy(suiteClasses);
-}
-
-class FrameworkProxy {
-
-  private framework: TestFramework;
-  private reporter: TestReporter;
-
-  constructor(suiteClasses: { [file: string]: (new () => TestSuite) | null }) {
-
-    const directoryReader = new DirectoryReaderStub(Object.keys(suiteClasses));
-    const classLoader = new ClassLoaderStub(suiteClasses);
-    this.reporter = new TestReporter();
-    this.framework = new TestFramework(directoryReader, classLoader, this.reporter);
-  }
-
-  async runTestsAndGetReport(): Promise<TestReport[]> {
-    await this.framework.test([]);
-    return this.reporter.getReport();
-  }
-}
-
-class DirectoryReaderStub implements DirectoryReader {
-
-  constructor(private testFiles: string[]) { }
-
-  read(_globPatterns: string[]): string[] {
-    return this.testFiles;
-  }
-}
-
-class ClassLoaderStub implements ClassLoader {
-
-  constructor(private suiteClasses: { [file: string]: (new () => TestSuite) | null }) { }
-
-  load(filepath: string): Promise<new () => TestSuite> {
-    const suiteClass = this.suiteClasses[filepath];
-    if (!(suiteClass instanceof Function)) {
-      throw new ClassLoadError();
-    }
-    return Promise.resolve(suiteClass);
-  }
-}
-
-interface TestReport {
-  suite: string;
-  test: string;
-  error: Error | null;
 }

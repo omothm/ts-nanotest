@@ -10,7 +10,9 @@
   "scripts": {
     "build": "./build.sh",
     "lint": "eslint .",
+    "prepublishOnly": "npm run build",
     "test": "ts-node test",
+    "test:acceptance": "ts-node test -a",
     "test:integration": "ts-node test -i"
   },
   "repository": {

@@ -1,3 +1,4 @@
+import frameworkAcceptanceTests from './acceptance/framework.test';
 import cliTests from './integration/cli.test';
 import nodeDirectoryReaderTests from './integration/nodeDirectoryReader.test';
 import nodeClassLoaderTests from './integration/nodeClassLoader.test';
@@ -11,20 +12,24 @@ run().catch((reason) => {
 
 async function run() {
 
-  const integration = process.argv.length > 2 ? process.argv[2] === '-i' : false;
+  const testType: TestType = getTestType();
 
-  const unitTestFunctions = [
-    ...frameworkTests,
-    ...runnerTests,
-  ];
+  const allTestFunctions: Record<TestType, (() => void | Promise<void>)[]> = {
+    unit: [
+      ...frameworkTests,
+      ...runnerTests,
+    ],
+    integration: [
+      ...cliTests,
+      ...nodeDirectoryReaderTests,
+      ...nodeClassLoaderTests,
+    ],
+    acceptance: [
+      ...frameworkAcceptanceTests,
+    ],
+  };
 
-  const integrationTestFunctions = [
-    ...cliTests,
-    ...nodeDirectoryReaderTests,
-    ...nodeClassLoaderTests,
-  ];
-
-  const testFunctions = integration ? integrationTestFunctions : unitTestFunctions;
+  const testFunctions = allTestFunctions[testType];
 
   for (const func of testFunctions) {
     try {
@@ -38,4 +43,22 @@ async function run() {
   }
 
   console.log('\nall pass');
+}
+
+type TestType = 'unit' | 'integration' | 'acceptance';
+
+function getTestType(): TestType {
+  if (process.argv.length < 3) {
+    return 'unit';
+  }
+  const arg = process.argv[2];
+  switch (arg) {
+    case '-u':
+      return 'unit';
+    case '-i':
+      return 'integration';
+    case '-a':
+      return 'acceptance';
+  }
+  throw new Error(`Unknown test type: ${arg}`);
 }
